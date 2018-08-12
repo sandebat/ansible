@@ -1,0 +1,31 @@
+---
+
+- hosts: web
+  sudo: yes
+  vars:
+    http_port: 80
+    doc_root: /var/www/html/amit/
+    doc_dir: /amit/
+  tasks:
+  - name: Install Apache Package
+    yum: name=httpd state=present
+    when: ansible_os_family == "RedHat"
+
+  - name: Deploy Apache Custom Configuration
+    template: src=templates/httpd.j2 dest=/etc/httpd/conf/httpd.conf
+    notify: 
+    - Restart Apache	
+
+  - name: Create Apache Document Root
+    file: path={{doc_root}} state=directory
+
+
+  - name: Deploy Site Config Files
+    template: src=templates/index.j2 dest={{doc_root}}/index.html      
+
+  - name: Start Apache Service
+    service: name=httpd state=started enabled=True
+
+  handlers:
+     - name: Restart Apache
+       service: name=httpd state=restarted

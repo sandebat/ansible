@@ -1,0 +1,15 @@
+---
+
+- hosts: web
+  sudo: yes
+
+  tasks:
+  - name: Install Apache Package
+    yum: name=httpd state=present
+    when: ansible_os_family == "RedHat"
+
+  - name: Deploy Site Config Files
+    template: src=templates/index.j2 dest=/var/www/html/index.html      
+
+  - name: Start Apache Service
+    service: name=httpd state=started enabled=True
